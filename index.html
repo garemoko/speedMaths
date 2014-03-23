@@ -13,7 +13,7 @@
 		background-color:#333;
 	}
 	.main {
-		margin: 150px auto;
+		margin: 200px auto;
 		text-align:center;
 		font-size:6em;
 		vertical-align:middle;
@@ -43,6 +43,9 @@
 	#score{
 		color: #22aa22;
 	}
+	#accuracy{
+		color: #2222aa;
+	}
 	#restart{
 		cursor: pointer;
 		width:300px;
@@ -70,7 +73,7 @@ Array.prototype.randomElement = function () {
 
 var DURATION = 60;
 
-var refreshIntervalId, seconds = DURATION, score = 0, questions = [];
+var refreshIntervalId, seconds = DURATION, score = 0, incorrect=0, questions = [];
 
 
 
@@ -151,9 +154,11 @@ function resetQuestion(){
 function resetQuiz(){
 	resetQuestion();
 	score = 0;
+	incorrect = 0;
 	seconds = DURATION;
 	$('#score').html(score);
 	$('#timer').html(seconds);
+	$('#accuracy').html('');
 	$('#feedback').hide();
 	$('#quiz').show();
 	refreshIntervalId = setInterval(tick, 1000);
@@ -181,10 +186,19 @@ function answerCorrect(){
 	$('body').css('background-color', '#22aa22');
 	score++;
 	$('#score').html(score);
+	updateAccuracy();
 }
 
 function answerWrong(){
 	$('body').css('background-color', '#aa2222')
+	incorrect++;
+	updateAccuracy();
+	
+}
+
+function updateAccuracy(){
+	var accuracyPerc = Math.round(score/(score+incorrect)*100)
+	$('#accuracy').html(accuracyPerc + '%');
 }
 
 </script>
@@ -204,6 +218,7 @@ function answerWrong(){
 		<div id='dash'>
 			<span class='dashlabel'>Time:</span><span id='timer'></span>
 			<br/><span class='dashlabel'>Points:</span><span id='score'></span>
+			<br/><span class='dashlabel'>Acc:</span><span id='accuracy'></span>
 		</div>
 	</body>
 </html>
