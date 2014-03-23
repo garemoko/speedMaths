@@ -152,6 +152,8 @@ function resetQuiz(){
 	resetQuestion();
 	score = 0;
 	seconds = DURATION;
+	$('#score').html(score);
+	$('#timer').html(seconds);
 	$('#feedback').hide();
 	$('#quiz').show();
 	refreshIntervalId = setInterval(tick, 1000);
@@ -159,7 +161,7 @@ function resetQuiz(){
 
 function tick(){
 	seconds--;
-	$('#timer').html('<b></b> ' + seconds);
+	$('#timer').html(seconds);
 	
 	if (seconds == 0){
 		clearInterval(refreshIntervalId);
@@ -178,7 +180,7 @@ function calculateAnswer(question){
 function answerCorrect(){
 	$('body').css('background-color', '#22aa22');
 	score++;
-	$('#score').html('<b></b> ' + score);
+	$('#score').html(score);
 }
 
 function answerWrong(){
