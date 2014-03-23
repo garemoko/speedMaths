@@ -1,0 +1,126 @@
+<html>
+<head>
+<style>
+	body {
+		font-family:Comic Sans MS;
+		color:fff;
+		background-color:#333;
+	}
+	#main {
+		margin: 100px auto;
+		text-align:center;
+		font-size:6em;
+		vertical-align:middle;
+	}
+	#answer{
+		vertical-align:middle;
+		font-size: 1em;
+		width:300px;
+		font-family:Comic Sans MS;
+	}
+
+</style>
+
+<script src="jquery.js"></script>
+<script src="math.js"></script>
+
+<script>
+Array.prototype.randomElement = function () {
+    return this[Math.floor(Math.random() * this.length)]
+}
+
+var questions = []
+//add a numebr between 0 and 2 to a number between 1 and 10
+questions.push.apply(questions,generateQuestions(10,0,2,0,10,['+']));
+//Add two equal numbers between 0 and 10 together
+questions.push.apply(questions,generateQuestions(10,0,10,0,0,['+']));
+
+function generateQuestions(maxX,minX,maxY,minY,maxDiff,operands)
+{
+	var rtnQuestions = [];
+	for (var x=minX;x<=maxX;x++)
+	{ 
+		for (var y=minY;y<=maxY;y++)
+		{
+			for (var o=0;o<operands.length;o++)
+			{
+				if (getDiff(x,y) <= maxDiff)
+				{
+					//shuffle order
+					if ((Math.random() < 0.5) == 1)
+					{
+						rtnQuestions.push(x + operands[o] + y);
+					}
+					else
+					{
+						rtnQuestions.push(y + operands[o] + x);
+					}
+				}
+			}
+		}
+	}
+	
+	return rtnQuestions; 
+}
+
+function getDiff(num1, num2){
+  if (num1 > num2) {
+    return num1-num2
+	}
+  else {
+    return num2-num1
+	}
+}
+
+$(document).ready(function(){
+	resetQuestion();
+	$('#answer').keyup(
+	function(event){
+		var lentocompare = $('#answer').val().length;
+		var substring = $('#answer').attr('data-correctanswer').substring((lentocompare -1),lentocompare)
+		if (!(( substring == String.fromCharCode(event.which))|| (substring == String.fromCharCode(event.which-48)))) {
+			answerWrong();
+			$('#answer').val('');
+		}
+		else {
+			if ($('#answer').val() == $('#answer').attr('data-correctanswer'))
+			{
+				answerCorrect();
+				resetQuestion();
+			}
+		}
+				
+	});
+})
+
+function resetQuestion(){
+	var question = questions.randomElement();
+	$('#question').text(question.replace('*','x') + '=');
+	$('#answer').attr('data-correctanswer', calculateAnswer(question));
+	$('#answer').val('');
+	$('#answer').focus()
+}
+
+function calculateAnswer(question){
+	var math = mathjs();
+	return math.eval(question);
+}
+
+function answerCorrect(){
+	$('body').css('background-color', '#22aa22')
+}
+
+function answerWrong(){
+	$('body').css('background-color', '#aa2222')
+}
+
+</script>
+
+</head>
+	<body>
+		<div id='main'>
+			<span id="question"></span>
+			<input type="text" name="answer" id="answer" value="" data-correctAnswer="0">
+		</div>
+	</body>
+</html>
