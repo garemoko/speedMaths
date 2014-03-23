@@ -12,8 +12,8 @@
 		color:fff;
 		background-color:#333;
 	}
-	#main {
-		margin: 100px auto;
+	.main {
+		margin: 150px auto;
 		text-align:center;
 		font-size:6em;
 		vertical-align:middle;
@@ -24,6 +24,39 @@
 		width:300px;
 		font-family:Comic Sans MS;
 	}
+	#dash{
+		position: fixed;
+		top: 1em;
+		right: 1em;
+		background-color:#fff;
+		font-size:2em;
+		width:150px;
+		overflow:hidden;
+		padding:10px;
+	}
+	.dashlabel {
+		color: #333;
+	}
+	#timer{
+		color: #aa2222;
+	}
+	#score{
+		color: #22aa22;
+	}
+	#restart{
+		cursor: pointer;
+		width:300px;
+		height:150px;
+		padding-top: 25px;
+		margin:auto;
+		background-color:#fff;
+		color: #22aa22;
+		text-align:center;
+		vertical-align:middle;
+		font-size: 0.7em;
+		line-height: 0.9em;
+	}
+	
 
 </style>
 
@@ -35,7 +68,12 @@ Array.prototype.randomElement = function () {
     return this[Math.floor(Math.random() * this.length)]
 }
 
-var questions = []
+var DURATION = 5;
+
+var refreshIntervalId, seconds = DURATION, score = 0, questions = [];
+
+
+
 //add a numebr between 0 and 2 to a number between 1 and 10
 questions.push.apply(questions,generateQuestions(10,0,2,0,10,['+']));
 //Add two equal numbers between 0 and 10 together
@@ -79,25 +117,28 @@ function getDiff(num1, num2){
 }
 
 $(document).ready(function(){
-	resetQuestion();
-	$('#answer').keyup(
-	function(event){
-		var lentocompare = $('#answer').val().length;
-		var substring = $('#answer').attr('data-correctanswer').substring((lentocompare -1),lentocompare)
-		if (!(( substring == String.fromCharCode(event.which))|| (substring == String.fromCharCode(event.which-48)))) {
-			answerWrong();
-			$('#answer').val('');
-		}
-		else {
-			if ($('#answer').val() == $('#answer').attr('data-correctanswer'))
-			{
-				answerCorrect();
-				resetQuestion();
-			}
-		}
-				
-	});
+	resetQuiz();
+	$('#restart').click(resetQuiz);
+	$('#answer').keyup(processKeyup);
+	
 })
+
+function processKeyup (event) {
+	var lentocompare = $('#answer').val().length;
+	var substring = $('#answer').attr('data-correctanswer').substring((lentocompare -1),lentocompare)
+	if (!(( substring == String.fromCharCode(event.which))|| (substring == String.fromCharCode(event.which-48)))) {
+		answerWrong();
+		$('#answer').val('');
+	}
+	else {
+		if ($('#answer').val() == $('#answer').attr('data-correctanswer'))
+		{
+			answerCorrect();
+			resetQuestion();
+		}
+	}
+			
+}
 
 function resetQuestion(){
 	var question = questions.randomElement();
@@ -107,13 +148,37 @@ function resetQuestion(){
 	$('#answer').focus()
 }
 
+function resetQuiz(){
+	resetQuestion();
+	score = 0;
+	seconds = DURATION;
+	$('#feedback').hide();
+	$('#quiz').show();
+	refreshIntervalId = setInterval(tick, 1000);
+}
+
+function tick(){
+	seconds--;
+	$('#timer').html('<b></b> ' + seconds);
+	
+	if (seconds == 0){
+		clearInterval(refreshIntervalId);
+		$('body').css('background-color', '#333');
+		$('#quiz').hide();
+		$('#feedback').show();
+	}
+}
+
+
 function calculateAnswer(question){
 	var math = mathjs();
 	return math.eval(question);
 }
 
 function answerCorrect(){
-	$('body').css('background-color', '#22aa22')
+	$('body').css('background-color', '#22aa22');
+	score++;
+	$('#score').html('<b></b> ' + score);
 }
 
 function answerWrong(){
@@ -124,9 +189,19 @@ function answerWrong(){
 
 </head>
 	<body>
-		<div id='main'>
+		<div id='quiz' class='main'>
 			<span id="question"></span>
 			<input type="number" name="answer" id="answer" value="" data-correctAnswer="0">
+		</div>
+		<div id='feedback' class='main'>
+			<p>Time's up!</p>
+			<div id="restart">
+				Start again. 
+			</div>
+		</div>
+		<div id='dash'>
+			<span class='dashlabel'>Time:</span><span id='timer'></span>
+			<br/><span class='dashlabel'>Points:</span><span id='score'></span>
 		</div>
 	</body>
 </html>
